@@ -32,12 +32,18 @@ jobs:
         run: |
           kubectl apply -f appset.yaml
 
-      - name: Wait and print pods
+      # TODO
+      - name: Sleep
+        run: sleep 300
+
+      - name: Get ApplicationSets
         run: |
-          sleep 30
-          set -x
-          
           kubectl get applicationsets.argoproj.io -n argocd -o yaml
-          kubectl get applications.argoproj.io -n argocd
-          kubectl get pods -A
-          kubectl get ns --label-columns chart,name,namespace
+      - name: Get Applications
+        run: kubectl get applications.argoproj.io -n argocd
+
+      - name: Get Pods
+        run: kubectl get pods -A
+
+      - name: Get Namespaces
+        run: kubectl get ns --label-columns chart,name,namespace
