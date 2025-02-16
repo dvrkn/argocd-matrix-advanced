@@ -1,0 +1,17 @@
+on:
+  push:
+
+name: ArgoCD Advanced Matrix Showcase
+
+jobs:
+  showcase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start minikube
+        uses: medyagh/setup-minikube@latest
+
+      - name: Try the cluster
+        run: kubectl get pods -A

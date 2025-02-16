@@ -1,0 +1,7 @@
+customers:
+  - name: "org1"
+    namespace: "ns1"
+  - name: "org2"
+    namespace: "ns2"
+  - name: "org3"
+    namespace: "ns3"
