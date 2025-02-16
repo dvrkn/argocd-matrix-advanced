@@ -15,3 +15,17 @@ jobs:
 
       - name: Try the cluster
         run: kubectl get pods -A
+
+      - name: Install ArgoCD
+        run: |
+          helm repo add argo https://argoproj.github.io/argo-helm
+          helm install argocd argo/argo-cd --create-namespace --namespace argocd --atomic \
+            --set configs.credentialTemplates.github.url=https://github.com \
+            --set configs.credentialTemplates.github.username=${{ secrets.GITHUB_ACTOR }} \
+            --set configs.credentialTemplates.github.password=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for ArgoCD
+        run: kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=argocd-server -n argocd --timeout=300s
+
+      - name: Try the cluster
+        run: kubectl get pods -A
