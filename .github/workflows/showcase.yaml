@@ -36,4 +36,6 @@ jobs:
         run: |
           sleep 30
           kubectl get applicationsets.argoproj.io -n argocd -o yaml
+          k get applications.argoproj.io -n argocd
+          k get pods -A
           kubectl get ns --label-columns chart,name,namespace
