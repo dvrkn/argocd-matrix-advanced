@@ -13,13 +13,10 @@ jobs:
       - name: Start minikube
         uses: medyagh/setup-minikube@latest
 
-      - name: Try the cluster
-        run: kubectl get pods -A
-
       - name: Install ArgoCD
         run: |
           helm repo add argo https://argoproj.github.io/argo-helm
-          helm install argocd argo/argo-cd --create-namespace --namespace argocd --atomic \
+          helm upgrade --install argocd argo/argo-cd --create-namespace --namespace argocd --atomic \
             --set configs.credentialTemplates.github.url=https://github.com \
             --set configs.credentialTemplates.github.username=${{ secrets.GITHUB_ACTOR }} \
             --set configs.credentialTemplates.github.password=${{ secrets.GITHUB_TOKEN }}
@@ -29,3 +26,14 @@ jobs:
 
       - name: Try the cluster
         run: kubectl get pods -A
+
+      - name: Apply the showcase
+        working-directory: deploy
+        run: |
+          kubectl apply -f appset.yaml
+
+      - name: Wait and print pods
+        run: |
+          sleep 30
+          kubectl get applicationsets.argoproj.io -n argocd -o yaml
+          kubectl get ns --label-columns chart,name,namespace
