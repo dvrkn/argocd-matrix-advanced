@@ -34,7 +34,9 @@ jobs:
 
       # TODO
       - name: Sleep
-        run: sleep 300
+        run: |
+          sleep 60
+          kubectl wait --for=condition=ready pod -l showcase=true -A
 
       - name: Get ApplicationSets
         run: |

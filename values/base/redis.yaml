@@ -1,2 +1,5 @@
 replica:
   replicaCount: 0
+
+commonLabels:
+  showcase: "true"
