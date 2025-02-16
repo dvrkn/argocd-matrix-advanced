@@ -35,7 +35,9 @@ jobs:
       - name: Wait and print pods
         run: |
           sleep 30
+          set -x
+          
           kubectl get applicationsets.argoproj.io -n argocd -o yaml
-          k get applications.argoproj.io -n argocd
-          k get pods -A
+          kubectl get applications.argoproj.io -n argocd
+          kubectl get pods -A
           kubectl get ns --label-columns chart,name,namespace
