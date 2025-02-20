@@ -10,7 +10,7 @@ spec:
         generators:
           - git:
               repoURL: https://github.com/dvrkn/argocd-matrix-advanced.git
-              revision: dev
+              revision: main
               files:
                 - path: config/customers.yaml
           - matrix:
@@ -30,7 +30,7 @@ spec:
       project: default
       sources:
         - repoURL: https://github.com/dvrkn/argocd-matrix-advanced.git
-          targetRevision: dev
+          targetRevision: main
           ref: val
         - chart: '{{ .chart }}'
           repoURL: registry-1.docker.io/bitnamicharts
