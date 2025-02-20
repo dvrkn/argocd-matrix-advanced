@@ -1,0 +1,50 @@
+on:
+  push:
+
+name: ArgoCD Advanced Matrix Showcase
+
+jobs:
+  showcase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start minikube
+        uses: medyagh/setup-minikube@latest
+
+      - name: Install ArgoCD
+        run: |
+          helm repo add argo https://argoproj.github.io/argo-helm
+          helm upgrade --install argocd argo/argo-cd --create-namespace --namespace argocd --atomic \
+            --set configs.credentialTemplates.github.url=https://github.com \
+            --set configs.credentialTemplates.github.username=${{ secrets.GITHUB_ACTOR }} \
+            --set configs.credentialTemplates.github.password=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for ArgoCD
+        run: kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=argocd-server -n argocd --timeout=300s
+
+      - name: Try the cluster
+        run: kubectl get pods -A
+
+      - name: Apply the showcase
+        working-directory: deploy
+        run: |
+          kubectl apply -f appset.yaml
+
+      - name: Sleep
+        run: |
+          sleep 30
+          kubectl wait --for=condition=ready pod -l showcase=true -A
+
+      - name: Get ApplicationSets
+        run: |
+          kubectl get applicationsets.argoproj.io -n argocd -o yaml
+      - name: Get Applications
+        run: kubectl get applications.argoproj.io -n argocd
+
+      - name: Get Pods
+        run: kubectl get pods -A
+
+      - name: Get Namespaces
+        run: kubectl get ns --label-columns chart,name,namespace

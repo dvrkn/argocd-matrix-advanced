@@ -1,0 +1,56 @@
+kind: ApplicationSet
+apiVersion: argoproj.io/v1alpha1
+metadata:
+  name: argocd-matrix-advanced
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - matrix:
+        generators:
+          - git:
+              repoURL: https://github.com/dvrkn/argocd-matrix-advanced.git
+              revision: main
+              files:
+                - path: config/customers.yaml
+          - matrix:
+              generators:
+                - list:
+                    elements:
+                      - chart: postgresql
+                        version: 16.2.5
+                      - chart: redis
+                        version: 20.4.0
+                - list:
+                    elementsYaml: "{{ .customers | toYaml }}"
+  template:
+    metadata:
+      name: '{{ .name }}-{{ .chart }}'
+    spec:
+      project: default
+      sources:
+        - repoURL: https://github.com/dvrkn/argocd-matrix-advanced.git
+          targetRevision: main
+          ref: val
+        - chart: '{{ .chart }}'
+          repoURL: registry-1.docker.io/bitnamicharts
+          targetRevision: '{{ .version }}'
+          helm:
+            valueFiles:
+              - $val/values/base/{{ .chart }}.yaml
+              - $val/values/customers/{{ .name }}/{{ .chart }}.yaml
+            releaseName: '{{ .name }}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .namespace }}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        managedNamespaceMetadata:
+          labels:
+            name: '{{ .name }}'
+            namespace:  '{{ .name }}'
+            chart: '{{ .chart }}'
+        syncOptions:
+          - CreateNamespace=true
